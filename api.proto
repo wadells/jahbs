@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package jahbs;
+
+service JobService {
+    rpc Start (StartRequest) returns (StartResponse) {}
+    rpc Stop (StopRequest) returns (StopResponse) {}
+    rpc GetStatus (GetStatusRequest) returns (GetStatusResponse) {}
+    rpc GetLogs (GetLogsRequest) returns (stream GetLogsResponse) {}
+}
+
+message Uuid {
+    bytes id = 1;
+}
+
+message StartRequest {
+    repeated string args = 1;
+}
+
+message StartResponse {
+    Uuid id = 1;
+}
+
+message StopRequest {
+    Uuid id = 1;
+}
+
+message StopResponse {}
+
+message GetLogsRequest {
+    Uuid uuid = 1;
+}
+
+message GetLogsResponse {
+    message GetLogsStdout {
+        bytes output = 1;
+    }
+
+    message GetLogStderr {
+        bytes output = 1;
+    }
+
+    message GetLogsExit {
+        int32 exitcode = 1;
+    }
+
+    oneof response {
+        GetLogsStdout stdout = 1;
+        GetLogStderr stderr = 2;
+        GetLogsExit exit = 3;
+    }
+}
+
+message GetStatusRequest {
+    Uuid id = 1;
+}
+
+message GetStatusResponse {
+    message StatusResponseRunning {}
+
+    message StatusResponseTerminated {
+        int32 exitcode = 1;
+    }
+
+    oneof response {
+        StatusResponseRunning running = 1;
+        StatusResponseTerminated terminated = 2;
+    }
+}
